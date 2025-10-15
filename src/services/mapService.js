@@ -70,7 +70,7 @@ async function getUserPartnershipsData(db, userId) {
 }
 
 // 상수 분리
-const KAKAO_APP_KEY = '833752abac2c28495e49b0022c9c07cd';
+const KAKAO_APP_KEY = '';
 const DEFAULT_CENTER = { lat: 37.24821748851879, lon: 127.07832374125279 };
 const DEFAULT_LEVEL = 4;
 const MARKER_IMAGE_URL = 'https://iili.io/K27I8le.png';
