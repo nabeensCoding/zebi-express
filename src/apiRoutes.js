@@ -345,7 +345,10 @@ router.post('/college-auth/request', verifyAccessToken, usersUpload.single('info
 
     await req.db.query(
       `
+      INSERT INTO college_auths (user_id, info21_image)
+                VALUES ($1, $2)
       `,
+      
       [userId, imagePath]
     );
 
