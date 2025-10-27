@@ -1,11 +1,16 @@
 /**
- * 사용자의 파트너십 데이터를 조회하고 가공
+ * 파트너십 데이터를 조회하고 가공
  * @param {Object} db - Database connection
- * @param {string} userId - User ID
+ * @param {string} partnerIds - Partner IDs string (comma-separated)
  * @returns {Promise<Array>} Enriched stores data
  */
-async function getUserPartnershipsData(db, userId) {
-  // 단일 쿼리로 모든 데이터를 조회 (DB 왕복 최소화)
+async function getUserPartnershipsData(db, partnerIds) {
+  // 문자열을 배열로 변환
+  const partnerIdArray = partnerIds.split(',');
+
+  // 플레이스홀더 생성 ($1, $2, $3, ...)
+  const placeholders = partnerIdArray.map((_, i) => `$${i + 1}`).join(',');
+
   const result = await db.query(
     `SELECT
       s.id as store_id,
@@ -20,15 +25,13 @@ async function getUserPartnershipsData(db, userId) {
       ps.id as partnership_id,
       ps.short_description,
       ps.long_description
-    FROM users u
-    CROSS JOIN LATERAL unnest(u.college_auth) AS user_partner_id
-    JOIN partnerships ps ON ps.partner_id = user_partner_id
+    FROM partnerships ps
     JOIN stores s ON ps.store_id = s.id
     JOIN partners p ON ps.partner_id = p.id
-    WHERE u.id = $1
+    WHERE ps.partner_id IN (${placeholders})
       AND s.lat IS NOT NULL
       AND s.lon IS NOT NULL`,
-    [userId]
+    partnerIdArray
   );
 
   if (result.rows.length === 0) {

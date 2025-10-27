@@ -10,9 +10,15 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 const SERVER_URL = process.env.SERVER_URL;
 
-// GET /api/map
-router.get('/map', verifyAccessToken, async (req, res) => {
-  const enrichedStores = await getUserPartnershipsData(req.db, req.user.id);
+// GET /api/map?partners=id1234,id2345
+router.get('/map', async (req, res) => {
+  const { partners } = req.query;
+
+  if (!partners) {
+    return res.status(400).json({ message: 'partners 쿼리 파라미터가 필요합니다.' });
+  }
+
+  const enrichedStores = await getUserPartnershipsData(req.db, partners);
   const html = generateMapHTML(enrichedStores);
   res.setHeader('Content-Type', 'text/html');
   res.send(html);
